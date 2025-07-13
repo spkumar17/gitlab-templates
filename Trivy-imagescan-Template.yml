@@ -1,0 +1,39 @@
+
+
+# ---------------------------------------------------------------
+# 📦 CI/CD Variables (define in GitLab → Settings → CI/CD → Variables)
+# ---------------------------------------------------------------
+# CI_REGISTRY_IMAGE:      Full path to the Docker Hub image repository
+#                         Example: docker.io/Boutique-store/microserviceimage
+#                         Set this if you're pushing to Docker Hub
+# SERVICE_NAME:           Logical name of the microservice (used in tagging and naming)
+#                         Example: ADservice
+
+# This Trivy scan template depends on the Docker build stage.
+# It scans the Docker image from the .tar file produced in that stage.
+# ➤ Be sure to add the Docker build job as a dependency using 'needs' and 'dependencies'
+#    so that the .tar file is downloaded and available for scanning in this job.
+# ---------------------------------------------------------------
+
+.trivy-imagescan:
+  image: aquasec/trivy:latest
+  stage: dockerimagescan
+  services:
+    - docker:dind
+  variables:
+    # Essential for docker:dind communication with TLS enabled.
+    # These must be set for 'docker' commands to work within this job.
+    DOCKER_HOST: tcp://docker:2376
+    DOCKER_TLS_CERTDIR: "/certs/client"
+    DOCKER_TLS_VERIFY: "1"  
+  script:
+    - docker load -i $SERVICE_NAME-$CI_COMMIT_SHORT_SHA.tar
+    - trivy image --scanners vuln --format table --output trivy-image-scan-$CI_PIPELINE_ID-$CI_COMMIT_REF_SLUG.txt  $CI_REGISTRY_IMAGE/$SERVICE_NAME:$CI_COMMIT_SHORT_SHA
+    - echo "Trivy scan completed. Output saved to trivy-image-scan-$CI_PIPELINE_ID-$CI_COMMIT_REF_SLUG.txt"
+   
+  artifacts:
+    paths:
+      - trivy-image-scan-$CI_PIPELINE_ID-$CI_COMMIT_REF_SLUG.txt
+    expire_in: 1 day # Artifacts will expire after 1 day to save storage
+    when: always
+  allow_failure: true # Allow this job to fail without failing the pipeline

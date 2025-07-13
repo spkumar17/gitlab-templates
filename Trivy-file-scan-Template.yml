@@ -1,0 +1,23 @@
+# --------------------------------------------------------------------
+# Trivy File System Scan Template
+# --------------------------------------------------------------------
+# This job uses the Trivy scanner to perform a filesystem-level scan 
+# of the source code directory (`.`). It helps detect vulnerabilities 
+# in project dependencies (e.g., package-lock.json, pom.xml, etc.).
+# --------------------------------------------------------------------
+# --------------------------------------------------------------------
+
+
+.trivy-filescan:
+  image: aquasec/trivy:latest
+  stage: filescan
+  script:
+    - echo "Starting Trivy file system scan..."
+    - trivy fs --format table -o trivyfs.html .
+    - echo "Trivy file system scan completed. Output saved to trivyfs.html"
+  artifacts:
+    paths:
+      - trivyfs.html
+    expire_in: 1 day # Artifacts will expire after 1 day to save storage
+    when: always
+  allow_failure: true # Allow this job to fail without failing the pipeline

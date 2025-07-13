@@ -1,0 +1,31 @@
+
+
+
+# ====================================================================
+# Template: GitLab CI  pipeline for Gradle-based microservice
+# Location: src/adservice
+# Stages: Package
+# Maintainer: prasannakumarsinganamalla@gmail.com
+# ====================================================================
+
+
+.build:
+  stage: package
+  image: gradle:8.7-jdk21
+  variables:
+    GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+  before_script:
+    - chmod +x gradlew
+  script:
+    - echo "run gradle package"
+    - ./gradlew installDist
+  artifacts:
+    paths : build/install/
+    expire_in: 1 hour
+    when: always
+  cache:
+    key: "gradle-$CI_COMMIT_REF_SLUG"
+    paths:
+      - .gradle/wrapper
+      - .gradle/caches
+

@@ -1,0 +1,28 @@
+.Test_python_template:
+  stage: test
+  image: python:3.11-alpine
+  variables:
+    PYTHONUNBUFFERED: 1
+
+  before_script:
+    - apk add --update --no-cache build-base
+
+  script:
+    - echo "--- Running tests ---"
+    - python -m venv .venv
+    - . .venv/bin/activate && \
+      pip install --no-cache-dir -r requirements.txt && \
+      mkdir -p test_results && \
+      pytest --junitxml=test_results/${CI_PIPELINE_ID}-test_results.xml
+
+  artifacts:
+    when: always
+    paths:
+      - test_results/
+    expire_in: 1 day
+
+  cache:
+    key: "python-$CI_COMMIT_REF_SLUG"
+    paths:
+      - .venv/
+    policy: pull-push

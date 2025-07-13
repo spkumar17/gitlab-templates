@@ -1,0 +1,52 @@
+
+
+# ---------------------------------------------------------------
+# 📦 CI/CD Variables (define in GitLab → Settings → CI/CD → Variables)
+# ---------------------------------------------------------------
+
+# CI_REGISTRY_IMAGE:      Full path to the Docker Hub image repository
+#                         Example: docker.io/Boutique-store/microserviceimage
+#                         Set this if you're pushing to Docker Hub
+
+# SERVICE_NAME:           Logical name of the microservice (used in tagging and naming)
+#                         Example: ADservice
+
+# DOCKERHUB_USERNAME:     Your Docker Hub username (e.g., 'prasanna17')
+#                         Store this as a **masked and protected** secret variable
+
+# DOCKERHUB_PASSWORD:     Your Docker Hub password or personal access token (recommended)
+#                          Store this as a **masked and protected** secret variable
+
+# define these variables under:
+# GitLab → Project → Settings → CI/CD → Variables
+
+# 📦 This template depends on the Docker build stage.
+# It loads the Docker image from a .tar file that was generated and saved as an artifact during the build.
+# ➤ When using this template, ensure the corresponding Docker build job is added as a dependency
+#    using 'dependencies' and/or 'needs' so that the .tar file is available in this stage.
+
+# ---------------------------------------------------------------
+
+.docker_build_template:
+  stage: DockerPush
+  image: docker:latest # Use the official Docker image for building
+  services:
+    - docker:dind # Required for Docker-in-Docker functionality
+  variables:
+    DOCKER_TLS_CERTDIR: "certs/client"
+    DOCKER_HOST: "tcp://docker:2376" # Use TCP connection to Docker daemon
+    DOCKER_TLS_VERIFY: "1" # Enable TLS verification
+  before_script:
+    - docker login -u "$DOCKERHUB_USERNAME" -p "$DOCKERHUB_PASSWORD"
+  script:
+    - echo "Pushing Docker image for $SERVICE_NAME and commit id $CI_COMMIT_SHORT_SHA..."
+    - docker load -i $SERVICE_NAME-$CI_COMMIT_SHORT_SHA.tar
+    - docker push "$CI_REGISTRY_IMAGE/$SERVICE_NAME:$CI_COMMIT_SHORT_SHA"
+    - docker push "$CI_REGISTRY_IMAGE/$SERVICE_NAME:latest"
+    # Cache Docker layers to speed up subsequent builds.
+  # The key uses the service name and commit reference slug to ensure unique caches per service/branch.
+  cache:
+    key: "$SERVICE_NAME-$CI_COMMIT_REF_SLUG"
+    paths:
+      - .docker_cache/ # Example path for caching Docker build context or layers
+    policy: pull-push # Pull cache before job, push after job completion

@@ -1,0 +1,26 @@
+# Create a GitLab CI/CD template for building a Node.js application.
+# This template is designed to be reusable across multiple Node.js projects.
+
+.nodejs_build_template:
+  stage: build
+  image: node:20.18.1-alpine # Use a Node.js image, matching your Dockerfile's builder base
+  variables:
+    NODE_ENV: "production" # Set the environment to production for builds
+  before_script:
+    - apk add --update --no-cache python3 make g++
+  script:
+
+    - echo "--- Installing dependencies ---"
+    - npm install --production # Install only production dependencies
+
+  artifacts:
+    when: always
+    paths:
+      - node_modules/ # The directory where npm installs packages
+    expire_in: 1 day # Artifacts will expire after 1 day to save storage
+
+  cache:
+    key: "nodejs-$CI_COMMIT_REF_SLUG"
+    paths:
+      - node_modules/ # Cache node_modules to speed up builds
+    policy: pull-push # Pull cache before job, push after job completion

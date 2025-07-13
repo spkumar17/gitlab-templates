@@ -1,0 +1,31 @@
+
+
+# ====================================================================
+# Template: GitLab CI pipeline for Gradle-based microservice
+# Location: src/adservice
+# Stages: Test
+# Maintainer: prasannakumarsinganamalla@gmail.com
+# ====================================================================
+
+
+.build:
+  stage: test
+  image: gradle:8.7-jdk21
+  variables:
+    GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+  before_script:
+    - chmod +x gradlew
+  script:
+    - ./gradlew test
+    - echo "ran gradle test"
+  artifacts:
+    reports:
+      junit: build/test-results/test/TEST-*.xml
+    expire_in: 1 hour
+    when: always
+  cache:
+    key: "gradle-$CI_COMMIT_REF_SLUG"
+    paths:
+      - .gradle/wrapper
+      - .gradle/caches
+    policy: pull-push  

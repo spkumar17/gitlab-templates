@@ -1,0 +1,39 @@
+# ... (previous stages and variables) ...
+
+# mention job name as <microservicename>_build 
+.golang_build_template:
+  stage: build
+  image: golang:1.23.4-alpine # Use a Go SDK image, matching your Dockerfile's builder base
+  variables:
+    GO111MODULE: "on" # Enable Go modules
+    CGO_ENABLED: "0" # Disable CGO for static builds
+    GOOS: "linux" # Target Linux OS
+    GOARCH: "amd64" # Target AMD64 architecture
+    GOPATH: "/go" # Set GOPATH to the default Go path
+  before_script:
+    - apk add --update --no-cache make g++ # Install build dependencies  
+
+  script:
+    - echo "--- Initializing Go Modules and tidying dependencies ---"
+    - go mod tidy # Important for fetching dependencies
+    - go mod download # Download dependencies based on go.mod/go.sum
+
+
+    - echo "--- Building Go application ---"
+    # This is the command from your Dockerfile's build stage!
+    - GOOS=$GOOS \
+     GOARCH=$GOARCH \
+     CGO_ENABLED=$CGO_ENABLED \
+     go build -o ${CI_JOB_NAME} .    
+  artifacts:
+    when: always
+    paths:
+      - ${CI_JOB_NAME} # Save the compiled executable as an artifact
+    expire_in: 1 day
+  cache:
+    key: "go-$CI_COMMIT_REF_SLUG"
+    paths:
+      - $GOPATH/pkg/mod/ # Cache Go modules to speed up builds
+    policy: pull-push # Pull cache before job, push after job completion  
+    
+

@@ -1,0 +1,33 @@
+# create a build template for Python applications
+
+# This template is designed to be reusable across multiple Python projects.
+
+.build_python_template:
+  stage: build
+  image: python:3.11-alpine # Use a Python image, matching your Dockerfile's builder base
+  variables:
+    PYTHONUNBUFFERED: 1 # Ensure output is not buffered, useful for logging
+
+  before_script:
+    - apk add --update --no-cache build-base # Install build dependencies
+
+  script:
+    - echo "--- Setting up Python virtual environment ---"
+    - python -m venv .venv # Create a virtual environment
+    - source .venv/bin/activate # Activate the virtual environment
+
+    - echo "--- Installing dependencies ---"
+    - pip install --no-cache-dir -r requirements.txt # Install dependencies from requirements.txt
+
+  artifacts:
+    when: always
+    paths:
+      - .venv/ # Save the virtual environment as an artifact
+    expire_in: 1 day # Artifacts will expire after 1 day to save storage
+
+  cache:
+    key: "python-$CI_COMMIT_REF_SLUG"
+    paths:
+      - .venv/ # Cache virtual environment to speed up builds
+    policy: pull-push # Pull cache before job, push after job completion
+    

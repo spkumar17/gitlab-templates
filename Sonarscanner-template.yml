@@ -1,0 +1,24 @@
+# ---------------------------------------------------------------------
+# GitLab CI Template: SonarQube Static Code Analysis with Quality Gate
+# ---------------------------------------------------------------------
+# This template runs SonarQube analysis for the current repo.
+# It uses the official SonarScanner CLI image and enforces the
+# quality gate, failing the job if the gate fails.
+# Customize sonar-project.properties in the repo root as needed.
+# ---------------------------------------------------------------------
+
+.sonarqube-check-template:
+  image: 
+    name: sonarsource/sonar-scanner-cli:latest
+  stage: sonarqube
+    
+  variables:
+    SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
+    GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the analysis task
+  cache:
+    key: "${CI_JOB_NAME}-${CI_COMMIT_REF_SLUG}"  # Unique cache key per job and branch
+    paths:
+      - .sonar/cache
+  script: 
+    - sonar-scanner -Dsonar.login=$SONAR_TOKEN -Dsonar.qualitygate.wait=true
+  allow_failure: false  # Fail the job if SonarQube analysis fails
