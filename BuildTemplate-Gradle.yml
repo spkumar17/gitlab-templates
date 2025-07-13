@@ -11,10 +11,9 @@
   stage: build
   image: gradle:8.7-jdk21
   variables:
-    GRADLE_OPTS: "-Dorg.gradle.daemon=false"
-  before_script: &gradle_common_before_script_commands
-    - chmod +x gradlew
+    GRADLE_OPTS: "-Dorg.gradle.daemon=false"    
   script:
+    - chmod +x gradlew
     - echo "run gradle build"
     - ./gradlew build
   artifacts:
