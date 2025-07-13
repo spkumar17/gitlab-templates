@@ -8,7 +8,7 @@
 # ====================================================================
 
 
-.build:
+.adservice_test:
   stage: test
   image: gradle:8.7-jdk21
   variables:
