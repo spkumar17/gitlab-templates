@@ -12,9 +12,9 @@
   image: gradle:8.7-jdk21
   variables:
     GRADLE_OPTS: "-Dorg.gradle.daemon=false"
-  before_script:
+    
+  script: 
     - chmod +x gradlew
-  script:
     - echo "run gradle build"
     - ./gradlew build
   artifacts:
