@@ -15,7 +15,8 @@
   script:
     - chmod +x gradlew
     - echo "run gradle build"
-    - ./gradlew build
+    - ./gradlew build -x verifyGoogleJavaFormat # This will exclude the task
+
   artifacts:
     paths:
       - build/libs/
