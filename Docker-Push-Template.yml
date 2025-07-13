@@ -27,7 +27,7 @@
 
 # ---------------------------------------------------------------
 
-.docker_build_template:
+.docker_push_template:
   stage: DockerPush
   image: docker:latest # Use the official Docker image for building
   services:
