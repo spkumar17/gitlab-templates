@@ -25,5 +25,3 @@
       - trivy-image-scan-$CI_JOB_NAME.txt
     expire_in: 1 day
     when: always
-
-  allow_failure: true
