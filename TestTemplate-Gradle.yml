@@ -1,13 +1,3 @@
-
-
-# ====================================================================
-# Template: GitLab CI pipeline for Gradle-based microservice
-# Location: src/adservice
-# Stages: Test
-# Maintainer: prasannakumarsinganamalla@gmail.com
-# ====================================================================
-
-
 .adservice_test:
   stage: test
   image: gradle:8.7-jdk21
@@ -24,7 +14,7 @@
     when: always
   cache:
     key: "gradle-$CI_COMMIT_REF_SLUG"
-  paths:
-    - .gradle/wrapper 
-    - .gradle/caches
-  policy: pull-push # Policy should be pull-push for saving new cache
+    paths:
+      - .gradle/wrapper 
+      - .gradle/caches
+    policy: pull-push
