@@ -24,7 +24,7 @@
     when: always
   cache:
     key: "gradle-$CI_COMMIT_REF_SLUG"
-  paths::
+  paths:
     - .gradle/wrapper 
     - .gradle/caches
   policy: pull-push # Policy should be pull-push for saving new cache
