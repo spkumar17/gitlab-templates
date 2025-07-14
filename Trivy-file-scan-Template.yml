@@ -15,7 +15,7 @@
     - curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
   script:
     - echo "Starting Trivy file system scan..."
-    - trivy fs --format html -o trivyfs-$CI_JOB_NAME.html .
+    - trivy fs --format table -o trivyfs-$CI_JOB_NAME.html .
     - echo "Scan complete. Report saved to trivyfs-$CI_JOB_NAME.html"
   artifacts:
     paths:
