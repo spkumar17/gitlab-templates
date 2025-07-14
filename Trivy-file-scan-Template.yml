@@ -7,7 +7,6 @@
 # --------------------------------------------------------------------
 # --------------------------------------------------------------------
 
-
 .trivy-filescan:
   image: aquasec/trivy:latest
   stage: filescan
@@ -17,7 +16,7 @@
     - echo "Trivy file system scan completed. Output saved to trivyfs.html"
   artifacts:
     paths:
-      - trivyfs.html
-    expire_in: 1 day # Artifacts will expire after 1 day to save storage
+      - $GRADLE_Dir/trivyfs.html 
+    expire_in: 1 day
     when: always
-  allow_failure: true # Allow this job to fail without failing the pipeline
+  allow_failure: true
