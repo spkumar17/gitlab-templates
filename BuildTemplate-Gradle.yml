@@ -19,7 +19,7 @@
 
   artifacts:
     paths:
-      - build/libs/
+      - $GRADLE_Dir/build/libs/
     expire_in: 1 hour
     when: always
   cache:

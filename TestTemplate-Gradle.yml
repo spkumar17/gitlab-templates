@@ -12,15 +12,14 @@
   stage: test
   image: gradle:8.7-jdk21
   variables:
-    GRADLE_OPTS: "-Dorg.gradle.daemon=false"
-  before_script:
-    - chmod +x gradlew
+    GRADLE_OPTS: "-Dorg.gradle.daemon=false"    
   script:
+    - chmod +x gradlew
     - ./gradlew test
     - echo "ran gradle test"
   artifacts:
     reports:
-      junit: build/test-results/test/TEST-*.xml
+      junit: $GRADLE_Dir/build/test-results/test/TEST-*.xml
     expire_in: 1 hour
     when: always
   cache:
