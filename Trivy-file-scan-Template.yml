@@ -8,7 +8,7 @@
 # --------------------------------------------------------------------
 
 .trivy-filescan:
-  image: alpine:3.19
+  image: ubuntu:latest
   stage: filescan
   script:
     - echo "Starting Trivy file system scan..."
