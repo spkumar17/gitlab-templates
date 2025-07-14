@@ -12,11 +12,12 @@
   stage: filescan
   script:
     - echo "Starting Trivy file system scan..."
-    - trivy fs --format table -o $GRADLE_Dir/trivyfs.html .
+    - trivy fs --format table -o trivyfs-$CI_JOB_NAME.html .
     - echo "Trivy file system scan completed. Output saved to trivyfs.html"
   artifacts:
     paths:
-      - $GRADLE_Dir/trivyfs.html 
+      - trivyfs-$CI_JOB_NAME.html 
     expire_in: 1 day
     when: always
-  allow_failure: true
+
+  
