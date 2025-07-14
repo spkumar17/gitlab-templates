@@ -29,17 +29,14 @@
   services:
     - docker:dind # Required for Docker-in-Docker functionality
   variables:
-    DOCKER_TLS_CERTDIR: "certs/client"
-    DOCKER_HOST: "tcp://docker:2376" # Use TCP connection to Docker daemon
-    DOCKER_TLS_VERIFY: "1" # Enable TLS verification
-    DOCKER_DRIVER: overlay2 # Recommended Docker storage driver for performance
-
-  before_script:
-    - echo "--- Logging into Docker Hub ---"
-    - docker login -u "$DOCKERHUB_USERNAME" -p "$DOCKERHUB_PASSWORD"
-    - echo "Successfully logged into Docker Hub."
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_TLS_VERIFY: "0" # Enable TLS verification
+    DOCKER_DRIVER: overlay2 # Recommended Docker storage driver for performance    
 
   script:
+    - echo "--- Logging into Docker Hub ---"
+    - echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+    - echo "Successfully logged into Docker Hub."
     - echo "Building Docker image for $SERVICE_NAME..."
     - docker build --pull \
       --cache-from=type=local,src=.docker_cache \
