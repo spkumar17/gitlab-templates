@@ -9,7 +9,9 @@
     - echo "ran gradle test"
   artifacts:
     reports:
-      junit: $GRADLE_Dir/build/test-results/test/TEST-*.xml
+      junit: build/test-results/test/TEST-*.xml
+    paths:
+      - build/test-results/test   
     expire_in: 1 hour
     when: always
   cache:
