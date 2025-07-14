@@ -1,24 +1,28 @@
 # --------------------------------------------------------------------
-# Trivy File System Scan Template
+# Trivy File System Scan Template for GitLab CI
 # --------------------------------------------------------------------
 # This job uses the Trivy scanner to perform a filesystem-level scan 
-# of the source code directory (`.`). It helps detect vulnerabilities 
-# in project dependencies (e.g., package-lock.json, pom.xml, etc.).
+# of the current working directory. It detects vulnerabilities in 
+# files like package-lock.json, pom.xml, etc., and outputs a table report.
 # --------------------------------------------------------------------
-# --------------------------------------------------------------------
+
 .trivy-filescan:
   image: ubuntu:22.04
   stage: filescan
-  before_script:
+
+ 
+  script:
     - apt-get update -y
     - apt-get install -y curl ca-certificates
+    - echo "Installing Trivy..."
     - curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
-  script:
+
     - echo "Starting Trivy file system scan..."
-    - trivy fs --format table -o trivyfs-$CI_JOB_NAME.html .
-    - echo "Scan complete. Report saved to trivyfs-$CI_JOB_NAME.html"
+    - trivy fs --format table -o trivyfs-$CI_JOB_NAME.txt .
+    - echo "Scan complete. Report saved to trivyfs-$CI_JOB_NAME.txt"
+
   artifacts:
     paths:
-      - trivyfs-$CI_JOB_NAME.html
+      - trivyfs-$CI_JOB_NAME.txt
     expire_in: 1 day
     when: always
