@@ -8,12 +8,16 @@
 # --------------------------------------------------------------------
 
 .trivy-filescan:
-  image: aquasec/trivy:latest
+  image: alpine:3.19
   stage: filescan
   script:
     - echo "Starting Trivy file system scan..."
-    - trivy fs --format html -o trivyfs-$CI_JOB_NAME.html .
-    - echo "Trivy file system scan completed. Output saved to trivyfs.html"
+    - ls -la
+    - |
+      echo "Install Trivy"
+      curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
+      echo "Run scan"
+      trivy fs --format html -o trivyfs-$CI_JOB_NAME.html .
   artifacts:
     paths:
       - trivyfs-$CI_JOB_NAME.html 
