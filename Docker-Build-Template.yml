@@ -22,6 +22,7 @@
 # ➤ Make sure to add the corresponding build job as a dependency when using this template.
 
 # ---------------------------------------------------------------
+# .gitlab-ci.yml or an included template file (e.g., .gitlab/ci_templates/docker.gitlab-ci.yml)
 
 .docker_build_template:
   stage: docker_build
@@ -31,7 +32,7 @@
   variables:
     DOCKER_HOST: tcp://docker:2375
     DOCKER_TLS_VERIFY: "0"
-    DOCKER_DRIVER: overlay2 # Recommended Docker storage driver for performance    
+    DOCKER_DRIVER: overlay2 # Recommended Docker storage driver for performance
 
   script:
     - echo "--- Logging into Docker Hub ---"
@@ -43,19 +44,16 @@
       --cache-to=type=local,dest=.docker_cache,mode=max \
       -t "$CI_REGISTRY_IMAGE/$SERVICE_NAME:$CI_COMMIT_SHORT_SHA" -t "$CI_REGISTRY_IMAGE/$SERVICE_NAME:latest" .
     - echo "Docker image built $CI_REGISTRY_IMAGE/$SERVICE_NAME:$CI_COMMIT_SHORT_SHA"
-  
+
     - echo "--- Saving Docker image to .tar artifact ---"
 
     - docker save -o $SERVICE_NAME-$CI_COMMIT_SHORT_SHA.tar $CI_REGISTRY_IMAGE/$SERVICE_NAME:$CI_COMMIT_SHORT_SHA
     - echo "Image saved to $SERVICE_NAME-$CI_COMMIT_SHORT_SHA.tar"
 
-
   artifacts:
     paths:
       - $SERVICE_NAME-$CI_COMMIT_SHORT_SHA.tar # Example: a file containing image details (e.g., image digest)
     expire_in: 1 day # Artifacts will expire after 1 day to save storage
-  # Cache Docker layers to speed up subsequent builds.
-  # The key uses the service name and commit reference slug to ensure unique caches per service/branch.
   cache:
     key: "$SERVICE_NAME-$CI_COMMIT_REF_SLUG"
     paths:
