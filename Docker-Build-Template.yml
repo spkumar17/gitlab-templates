@@ -33,6 +33,7 @@
     DOCKER_HOST: tcp://docker:2375
     DOCKER_TLS_VERIFY: "0"
     DOCKER_DRIVER: overlay2 # Recommended Docker storage driver for performance
+    DOCKER_TLS_CERTDIR: ""  
 
   script:
     - echo "--- Logging into Docker Hub ---"
