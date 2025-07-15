@@ -26,9 +26,9 @@
 
 .docker_build_template:
   stage: docker_build
-  image: docker:latest # Use the official Docker image for building
+  image: docker:24.0.5 # Use the official Docker image for building
   services:
-    - docker:dind # Required for Docker-in-Docker functionality
+    - docker:24.0.5-dind # Required for Docker-in-Docker functionality
   variables:
     DOCKER_HOST: tcp://docker:2375
     DOCKER_TLS_VERIFY: "0"
