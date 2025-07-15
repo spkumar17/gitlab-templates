@@ -37,6 +37,7 @@
 
   script:
     - apk add --no-cache docker-cli 
+    - docker info || echo "Docker daemon not reachable"
     - echo "--- Logging into Docker Hub ---"
     - echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
     - echo "Successfully logged into Docker Hub."
