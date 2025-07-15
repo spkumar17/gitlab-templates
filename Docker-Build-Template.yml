@@ -27,7 +27,8 @@
   stage: docker_build
   image: docker:24.0.5 # Use the official Docker image for building
   services:
-    - docker:24.0.5-dind
+    - name: docker:24.0.5-dind
+      command: ["--host=tcp://0.0.0.0:2375", "--tls=false"]  
   variables:
     DOCKER_HOST: tcp://docker:2375
     DOCKER_TLS_VERIFY: "0"
