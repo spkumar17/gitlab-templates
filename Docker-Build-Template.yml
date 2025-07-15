@@ -3,7 +3,7 @@
 # 📦 CI/CD Variables (define in GitLab → Settings → CI/CD → Variables)
 # ---------------------------------------------------------------
 
-# CI_REGISTRY_IMAGE:      Full path to the Docker Hub image repository
+# REGISTRY_IMAGE:      Full path to the Docker Hub image repository
 #                         Example: docker.io/Boutique-store/microserviceimage
 #                         Set this if you're pushing to Docker Hub
 
@@ -23,42 +23,41 @@
 
 # ---------------------------------------------------------------
 # .gitlab-ci.yml or an included template file (e.g., .gitlab/ci_templates/docker.gitlab-ci.yml)
-
 .docker_build_template:
   stage: docker_build
   image: docker:24.0.5 # Use the official Docker image for building
   services:
-    - docker:24.0.5-dind # Required for Docker-in-Docker functionality
+    - docker:24.0.5-dind
   variables:
     DOCKER_HOST: tcp://docker:2375
     DOCKER_TLS_VERIFY: "0"
-    DOCKER_DRIVER: overlay2 # Recommended Docker storage driver for performance
-    DOCKER_TLS_CERTDIR: ""  
+    DOCKER_DRIVER: overlay2
+    DOCKER_TLS_CERTDIR: ""
 
   script:
-    - apk add --no-cache docker-cli 
+    - apk add --no-cache docker-cli
     - docker info || echo "Docker daemon not reachable"
     - echo "--- Logging into Docker Hub ---"
     - echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
     - echo "Successfully logged into Docker Hub."
     - echo "Building Docker image for $SERVICE_NAME..."
     - docker build --pull \
-      --cache-from=type=local,src=.docker_cache \
-      --cache-to=type=local,dest=.docker_cache,mode=max \
-      -t "$CI_REGISTRY_IMAGE/$SERVICE_NAME:$CI_COMMIT_SHORT_SHA" -t "$CI_REGISTRY_IMAGE/$SERVICE_NAME:latest" .
-    - echo "Docker image built $CI_REGISTRY_IMAGE/$SERVICE_NAME:$CI_COMMIT_SHORT_SHA"
-
+        --cache-from=type=local,src=.docker_cache \
+        --cache-to=type=local,dest=.docker_cache,mode=max \
+        -t "$REGISTRY_IMAGE/$SERVICE_NAME:$CI_COMMIT_SHORT_SHA" \
+        -t "$REGISTRY_IMAGE/$SERVICE_NAME:latest" .
+    - echo "Docker image built $REGISTRY_IMAGE/$SERVICE_NAME:$CI_COMMIT_SHORT_SHA"
     - echo "--- Saving Docker image to .tar artifact ---"
-
-    - docker save -o $SERVICE_NAME-$CI_COMMIT_SHORT_SHA.tar $CI_REGISTRY_IMAGE/$SERVICE_NAME:$CI_COMMIT_SHORT_SHA
+    - docker save -o $SERVICE_NAME-$CI_COMMIT_SHORT_SHA.tar $REGISTRY_IMAGE/$SERVICE_NAME:$CI_COMMIT_SHORT_SHA
     - echo "Image saved to $SERVICE_NAME-$CI_COMMIT_SHORT_SHA.tar"
 
   artifacts:
     paths:
-      - $SERVICE_NAME-$CI_COMMIT_SHORT_SHA.tar # Example: a file containing image details (e.g., image digest)
-    expire_in: 1 day # Artifacts will expire after 1 day to save storage
+      - $SERVICE_NAME-$CI_COMMIT_SHORT_SHA.tar
+    expire_in: 1 day
+
   cache:
     key: "$SERVICE_NAME-$CI_COMMIT_REF_SLUG"
     paths:
-      - .docker_cache/ # Example path for caching Docker build context or layers
-    policy: pull-push # Pull cache before job, push after job completion
+      - .docker_cache/
+    policy: pull-push
