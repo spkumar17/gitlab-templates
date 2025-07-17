@@ -37,12 +37,14 @@
     - docker build --pull -t "$REGISTRY_IMAGE/$SERVICE_NAME:$CI_COMMIT_SHORT_SHA" -t "$REGISTRY_IMAGE/$SERVICE_NAME:latest" .
     - echo "Docker image built $REGISTRY_IMAGE/$SERVICE_NAME:$CI_COMMIT_SHORT_SHA"
     - echo "--- Saving Docker image to .tar artifact ---"
-    - docker save -o $SERVICE_NAME-$CI_COMMIT_SHORT_SHA.tar $REGISTRY_IMAGE/$SERVICE_NAME:$CI_COMMIT_SHORT_SHA
+    - docker save -o $CI_PROJECT_DIR/$SERVICE_NAME-$CI_COMMIT_SHORT_SHA.tar $REGISTRY_IMAGE/$SERVICE_NAME:$CI_COMMIT_SHORT_SHA
+    - cd $CI_PROJECT_DIR
+    - ls -ls 
     - echo "Image saved to '$SERVICE_NAME-$CI_COMMIT_SHORT_SHA.tar'"
   artifacts:
     name: "$SERVICE_NAME-$CI_COMMIT_SHORT_SHA"
     paths:
-    - "$SERVICE_NAME-$CI_COMMIT_SHORT_SHA.tar"
+    - "$CI_PROJECT_DIR/$SERVICE_NAME-$CI_COMMIT_SHORT_SHA.tar"
     expire_in: 1 day
 
   cache:
