@@ -20,7 +20,7 @@
 # GitLab → Project → Settings → CI/CD → Variables
 ## This template depends on the application's build stage and downloads the .jar artifact from it.
 # ➤ Make sure to add the corresponding build job as a dependency when using this template.
-
+# Shell executers
 # ---------------------------------------------------------------
 # .gitlab-ci.yml or an included template file (e.g., .gitlab/ci_templates/docker.gitlab-ci.yml)
 .docker_build_template:
