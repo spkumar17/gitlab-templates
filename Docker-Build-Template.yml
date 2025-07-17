@@ -25,14 +25,6 @@
 # .gitlab-ci.yml or an included template file (e.g., .gitlab/ci_templates/docker.gitlab-ci.yml)
 .docker_build_template:
   stage: docker_build
-  image: docker:24.0.5 # Use the official Docker image for building
-  services:
-    - name: docker:24.0.5-dind
-      command: ["--host=tcp://0.0.0.0:2375", "--host=unix:///var/run/docker.sock", "--tls=false"]
-  variables:
-    DOCKER_TLS_VERIFY: "0"
-    DOCKER_DRIVER: overlay2
-    DOCKER_TLS_CERTDIR: ""
 
   script:
     - for i in {1..10}; do docker info && break || sleep 3; done
