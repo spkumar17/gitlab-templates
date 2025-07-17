@@ -25,6 +25,8 @@
 # .gitlab-ci.yml or an included template file (e.g., .gitlab/ci_templates/docker.gitlab-ci.yml)
 .docker_build_template:
   stage: docker_build
+  variables:
+    DOCKER_BUILDKIT: "1"
 
   script:
     - for i in {1..10}; do docker info && break || sleep 3; done
@@ -34,11 +36,7 @@
     - echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
     - echo "Successfully logged into Docker Hub."
     - echo "Building Docker image for $SERVICE_NAME..."
-    - docker build --pull \
-        --cache-from=type=local,src=.docker_cache \
-        --cache-to=type=local,dest=.docker_cache,mode=max \
-        -t "$REGISTRY_IMAGE/$SERVICE_NAME:$CI_COMMIT_SHORT_SHA" \
-        -t "$REGISTRY_IMAGE/$SERVICE_NAME:latest" .
+    - docker build --pull --cache-from=type=local,src=.docker_cache --cache-to=type=local,dest=.docker_cache,mode=max -t "$REGISTRY_IMAGE/$SERVICE_NAME:$CI_COMMIT_SHORT_SHA" -t "$REGISTRY_IMAGE/$SERVICE_NAME:latest" .
     - echo "Docker image built $REGISTRY_IMAGE/$SERVICE_NAME:$CI_COMMIT_SHORT_SHA"
     - echo "--- Saving Docker image to .tar artifact ---"
     - docker save -o $SERVICE_NAME-$CI_COMMIT_SHORT_SHA.tar $REGISTRY_IMAGE/$SERVICE_NAME:$CI_COMMIT_SHORT_SHA
