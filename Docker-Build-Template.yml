@@ -38,11 +38,10 @@
     - echo "Docker image built $REGISTRY_IMAGE/$SERVICE_NAME:$CI_COMMIT_SHORT_SHA"
     - echo "--- Saving Docker image to .tar artifact ---"
     - docker save -o $SERVICE_NAME-$CI_COMMIT_SHORT_SHA.tar $REGISTRY_IMAGE/$SERVICE_NAME:$CI_COMMIT_SHORT_SHA
-    - echo "Image saved to $SERVICE_NAME-$CI_COMMIT_SHORT_SHA.tar"
-
+    - echo "Image saved to ${SERVICE_NAME-$CI_COMMIT_SHORT_SHA.tar}"
   artifacts:
     paths:
-      - $SERVICE_NAME-$CI_COMMIT_SHORT_SHA.tar
+      - "$SERVICE_NAME-$CI_COMMIT_SHORT_SHA.tar"
     expire_in: 1 day
 
   cache:
