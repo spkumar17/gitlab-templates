@@ -7,8 +7,10 @@
 # --------------------------------------------------------------------
 
 .trivy-filescan:
+  image: ubuntu:22.04
   stage: filescan
 
+ 
   script:
     - apt-get update -y
     - apt-get install -y curl ca-certificates
