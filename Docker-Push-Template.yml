@@ -29,8 +29,6 @@
 
 .docker_push_template:
   stage: DockerPush
-  variables:
-    DOCKER_BUILDKIT: "1"
 
   script:
     - docker info || echo "Docker daemon not reachable"
