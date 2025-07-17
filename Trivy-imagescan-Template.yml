@@ -15,13 +15,13 @@
     - apt-get install -y curl ca-certificates
     - echo "Installing Trivy..."
     - curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
-
     - echo "Running Trivy image scan on $CI_REGISTRY_IMAGE/$SERVICE_NAME:$CI_COMMIT_SHORT_SHA"
-    - trivy image --scanners vuln --format table --output trivy-image-scan-$CI_JOB_NAME.txt $CI_REGISTRY_IMAGE/$SERVICE_NAME:$CI_COMMIT_SHORT_SHA
+    - docker load -i $CI_PROJECT_DIR/$SERVICE_NAME-$CI_COMMIT_SHORT_SHA.tar
+    - trivy image --input $CI_PROJECT_DIR/$SERVICE_NAME-$CI_COMMIT_SHORT_SHA.tar --format table --output $CI_PROJECT_DIR/trivy-image-scan.txt
     - echo "Scan complete. Output saved to trivy-image-scan-$CI_JOB_NAME.txt"
 
   artifacts:
     paths:
-      - trivy-image-scan-$CI_JOB_NAME.txt
+      - $CI_PROJECT_DIR/trivy-image-scan-$CI_JOB_NAME.txt
     expire_in: 1 day
     when: always
