@@ -9,11 +9,16 @@
 .trivy-imagescan:
   stage: dockerimagescan
 
+  variables:
+    TRIVY_VERSION="0.51.0"
   script:
-    - echo "Installing Trivy..."
-    - sudo curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
-    - echo "Running Trivy image scan on $CI_REGISTRY_IMAGE/$SERVICE_NAME:$CI_COMMIT_SHORT_SHA"
-    - sudo docker load -i $CI_PROJECT_DIR/$SERVICE_NAME-$CI_COMMIT_SHORT_SHA.tar
+    - echo "Installing Trivy v$TRIVY_VERSION..."
+    - curl -sfL https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VERSION}/trivy_${TRIVY_VERSION}_Linux-64bit.tar.gz -o trivy.tar.gz
+    - tar -xzf trivy.tar.gz
+    - mv trivy /usr/local/bin/trivy
+    - echo "Trivy installed successfully."
+    - trivy --version # Verify installation
+    - docker load -i $CI_PROJECT_DIR/$SERVICE_NAME-$CI_COMMIT_SHORT_SHA.tar
     - trivy image --input $CI_PROJECT_DIR/$SERVICE_NAME-$CI_COMMIT_SHORT_SHA.tar --format table --output $CI_PROJECT_DIR/trivy-image-scan.txt
     - echo "Scan complete. Output saved to trivy-image-scan-$CI_JOB_NAME.txt"
 
