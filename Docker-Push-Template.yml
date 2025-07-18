@@ -1,32 +1,3 @@
-
-
-# ---------------------------------------------------------------
-# 📦 CI/CD Variables (define in GitLab → Settings → CI/CD → Variables)
-# ---------------------------------------------------------------
-
-# CI_REGISTRY_IMAGE:      Full path to the Docker Hub image repository
-#                         Example: docker.io/Boutique-store/microserviceimage
-#                         Set this if you're pushing to Docker Hub
-
-# SERVICE_NAME:           Logical name of the microservice (used in tagging and naming)
-#                         Example: ADservice
-
-# DOCKERHUB_USERNAME:     Your Docker Hub username (e.g., 'prasanna17')
-#                         Store this as a **masked and protected** secret variable
-
-# DOCKERHUB_PASSWORD:     Your Docker Hub password or personal access token (recommended)
-#                          Store this as a **masked and protected** secret variable
-
-# define these variables under:
-# GitLab → Project → Settings → CI/CD → Variables
-
-# 📦 This template depends on the Docker build stage.
-# It loads the Docker image from a .tar file that was generated and saved as an artifact during the build.
-# ➤ When using this template, ensure the corresponding Docker build job is added as a dependency
-#    using 'dependencies' and/or 'needs' so that the .tar file is available in this stage.
-
-# ---------------------------------------------------------------
-
 .docker_push_template:
   stage: DockerPush
 
@@ -34,11 +5,20 @@
     - docker info || echo "Docker daemon not reachable"
     - echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
     - echo "Pushing Docker image for $SERVICE_NAME and commit ID $CI_COMMIT_SHORT_SHA..."
-    - docker load -i $CI_PROJECT_DIR/$SERVICE_NAME-$CI_COMMIT_SHORT_SHA.tar
-    - docker tag microserviceimage/$SERVICE_NAME:$CI_COMMIT_SHORT_SHA prasannakumarsinganamalla431/$SERVICE_NAME:$CI_COMMIT_SHORT_SHA
-    - docker tag microserviceimage/$SERVICE_NAME:$CI_COMMIT_SHORT_SHA prasannakumarsinganamalla431/$SERVICE_NAME:latest
-    - docker push prasannakumarsinganamalla431/$SERVICE_NAME:$CI_COMMIT_SHORT_SHA
-    - docker push prasannakumarsinganamalla431/$SERVICE_NAME:latest
+
+    # Load Docker image and extract the actual tag
+    - IMAGE_FULL=$(docker load -i "$CI_PROJECT_DIR/$SERVICE_NAME-$CI_COMMIT_SHORT_SHA.tar" | awk '/Loaded image:/ {print $3}')
+    - echo "Loaded image: $IMAGE_FULL"
+    - IMAGE_TAG=$(echo "$IMAGE_FULL" | cut -d':' -f2)
+    - echo "Extracted tag: $IMAGE_TAG"
+
+    # Re-tag to Docker Hub repo
+    - docker tag "$IMAGE_FULL" "prasannakumarsinganamalla431/$SERVICE_NAME:$CI_COMMIT_SHORT_SHA"
+    - docker tag "$IMAGE_FULL" "prasannakumarsinganamalla431/$SERVICE_NAME:latest"
+
+    # Push both tags
+    - docker push "prasannakumarsinganamalla431/$SERVICE_NAME:$CI_COMMIT_SHORT_SHA"
+    - docker push "prasannakumarsinganamalla431/$SERVICE_NAME:latest"
 
   cache:
     key: "$SERVICE_NAME-$CI_COMMIT_REF_SLUG"
