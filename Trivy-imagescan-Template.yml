@@ -20,9 +20,9 @@
     - trivy image --scanners vuln --input $CI_PROJECT_DIR/$SERVICE_NAME-$CI_COMMIT_SHORT_SHA.tar --format table --output $CI_PROJECT_DIR/trivy-image-scan-$CI_JOB_NAME.txt
     - echo "Scan complete. Output saved to $CI_PROJECT_DIR/trivy-image-scan-$CI_JOB_NAME.txt"
   cache:
-  key: trivy-db
-  paths:
-    - /root/.cache/trivy
+    key: trivy-db
+    paths:
+      - /root/.cache/trivy
   artifacts:
     paths:
       - $CI_PROJECT_DIR/trivy-image-scan-$CI_JOB_NAME.txt
