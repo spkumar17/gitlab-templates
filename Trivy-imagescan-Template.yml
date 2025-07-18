@@ -7,12 +7,16 @@
 # --------------------------------------------------------------------
 
 .trivy-imagescan:
-  image: aquasec/trivy:0.51.0
   stage: dockerimagescan
 
   # No TRIVY_VERSION variable needed if using snap, as snap manages versions
   # unless you're pinning to a specific channel (e.g., --channel=stable/edge)
   script:
+    - apt-get update -y
+    - apt-get install -y curl ca-certificates
+    - echo "Installing Trivy..."
+    - curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
+
     - trivy image --input $CI_PROJECT_DIR/$SERVICE_NAME-$CI_COMMIT_SHORT_SHA.tar --format table --output $CI_PROJECT_DIR/trivy-image-scan-$CI_JOB_NAME.txt
     - echo "Scan complete. Output saved to $CI_PROJECT_DIR/trivy-image-scan-$CI_JOB_NAME.txt"
 
