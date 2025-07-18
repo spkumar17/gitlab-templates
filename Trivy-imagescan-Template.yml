@@ -7,6 +7,7 @@
 # --------------------------------------------------------------------
 
 .trivy-imagescan:
+  image: ubuntu:22.04
   stage: dockerimagescan
 
   # No TRIVY_VERSION variable needed if using snap, as snap manages versions
