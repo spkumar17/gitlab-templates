@@ -10,8 +10,6 @@
   stage: dockerimagescan
 
   script:
-    - apt-get update -y
-    - apt-get install -y curl ca-certificates
     - echo "Installing Trivy..."
     - curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
     - echo "Running Trivy image scan on $CI_REGISTRY_IMAGE/$SERVICE_NAME:$CI_COMMIT_SHORT_SHA"
