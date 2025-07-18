@@ -1,26 +1,34 @@
 # --------------------------------------------------------------------
 # Trivy Docker Image Scan Template for GitLab CI
 # --------------------------------------------------------------------
-# This job pulls and scans a Docker image using Trivy. It does not 
-# require Docker-in-Docker or certificate setup. Assumes the image 
+# This job pulls and scans a Docker image using Trivy. It does not
+# require Docker-in-Docker or certificate setup. Assumes the image
 # is already pushed to a registry and accessible.
 # --------------------------------------------------------------------
 
 .trivy-imagescan:
   stage: dockerimagescan
 
-  variables:
-    TRIVY_VERSION: "0.51.0" 
+  # No TRIVY_VERSION variable needed if using snap, as snap manages versions
+  # unless you're pinning to a specific channel (e.g., --channel=stable/edge)
+
   script:
-    - echo "Installing Trivy v$TRIVY_VERSION..."
-    - curl -sfL https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VERSION}/trivy_${TRIVY_VERSION}_Linux-64bit.tar.gz -o trivy.tar.gz
-    - tar -xzf trivy.tar.gz
-    - mv trivy /usr/local/bin/trivy
-    - echo "Trivy installed successfully."
-    - trivy --version # Verify installation
+    # --- START Trivy Installation using Snap ---
+    - echo "Ensuring snapd is available and installing Trivy via snap..."
+    # Attempt to install snapd if not present. This might require sudo access.
+    # On many GitLab CI runners, this will fail if sudo isn't available or if the base image is not Ubuntu.
+    - apt update && apt install -y snapd || true # Install snapd if not present, '|| true' to not fail if already installed or if apt isn't there
+    - snap install trivy --classic # --classic is often needed for system-level tools
+    # Verify installation by checking the snap path or linking to /usr/local/bin if needed
+    - /snap/bin/trivy --version # Snaps are often in /snap/bin/
+    # You might need to add /snap/bin to your PATH if it's not already there for subsequent commands
+    - export PATH=$PATH:/snap/bin
+    # --- END Trivy Installation using Snap ---
+
+    - echo "Running Trivy image scan on $CI_REGISTRY_IMAGE/$SERVICE_NAME:$CI_COMMIT_SHORT_SHA"
     - docker load -i $CI_PROJECT_DIR/$SERVICE_NAME-$CI_COMMIT_SHORT_SHA.tar
-    - trivy image --input $CI_PROJECT_DIR/$SERVICE_NAME-$CI_COMMIT_SHORT_SHA.tar --format table --output $CI_PROJECT_DIR/trivy-image-scan.txt
-    - echo "Scan complete. Output saved to trivy-image-scan-$CI_JOB_NAME.txt"
+    - trivy image --input $CI_PROJECT_DIR/$SERVICE_NAME-$CI_COMMIT_SHORT_SHA.tar --format table --output $CI_PROJECT_DIR/trivy-image-scan-$CI_JOB_NAME.txt
+    - echo "Scan complete. Output saved to $CI_PROJECT_DIR/trivy-image-scan-$CI_JOB_NAME.txt"
 
   artifacts:
     paths:
