@@ -18,11 +18,11 @@
     - curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
 
     - echo "Starting Trivy file system scan..."
-    - trivy fs --format table -o trivyfs-$CI_JOB_NAME.txt .
+    - trivy fs --format table -o $CI_PROJECT_DIR/trivyfs-$CI_JOB_NAME.txt .
     - echo "Scan complete. Report saved to trivyfs-$CI_JOB_NAME.txt"
 
   artifacts:
     paths:
-      - trivyfs-$CI_JOB_NAME.txt
+      - $CI_PROJECT_DIR/trivyfs-$CI_JOB_NAME.txt
     expire_in: 1 day
     when: always
