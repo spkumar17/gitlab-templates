@@ -6,19 +6,18 @@
     - echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
     - echo "Pushing Docker image for $SERVICE_NAME and commit ID $CI_COMMIT_SHORT_SHA..."
 
-    # Load Docker image and extract the actual tag
-    - IMAGE_FULL=$(docker load -i "$CI_PROJECT_DIR/$SERVICE_NAME-$CI_COMMIT_SHORT_SHA.tar" | awk '/Loaded image:/ {print $3}')
-    - echo "Loaded image: $IMAGE_FULL"
-    - IMAGE_TAG=$(echo "$IMAGE_FULL" | cut -d':' -f2)
-    - echo "Extracted tag: $IMAGE_TAG"
-
-    # Re-tag to Docker Hub repo
-    - docker tag "$IMAGE_FULL" "prasannakumarsinganamalla431/$SERVICE_NAME:$CI_COMMIT_SHORT_SHA"
-    - docker tag "$IMAGE_FULL" "prasannakumarsinganamalla431/$SERVICE_NAME:latest"
-
-    # Push both tags
-    - docker push "prasannakumarsinganamalla431/$SERVICE_NAME:$CI_COMMIT_SHORT_SHA"
-    - docker push "prasannakumarsinganamalla431/$SERVICE_NAME:latest"
+    # Load the image and extract the loaded tag
+    - |
+      IMAGE_OUTPUT=$(docker load -i "$CI_PROJECT_DIR/$SERVICE_NAME-$CI_COMMIT_SHORT_SHA.tar")
+      echo "$IMAGE_OUTPUT"
+      IMAGE_FULL=$(echo "$IMAGE_OUTPUT" | awk '/Loaded image:/ {print $3}')
+      echo "Loaded image: $IMAGE_FULL"
+      IMAGE_TAG=$(echo "$IMAGE_FULL" | cut -d':' -f2)
+      echo "Extracted tag: $IMAGE_TAG"
+      docker tag "$IMAGE_FULL" "prasannakumarsinganamalla431/$SERVICE_NAME:$CI_COMMIT_SHORT_SHA"
+      docker tag "$IMAGE_FULL" "prasannakumarsinganamalla431/$SERVICE_NAME:latest"
+      docker push "prasannakumarsinganamalla431/$SERVICE_NAME:$CI_COMMIT_SHORT_SHA"
+      docker push "prasannakumarsinganamalla431/$SERVICE_NAME:latest"
 
   cache:
     key: "$SERVICE_NAME-$CI_COMMIT_REF_SLUG"
