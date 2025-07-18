@@ -10,7 +10,7 @@
   stage: dockerimagescan
 
   variables:
-    TRIVY_VERSION="0.51.0"
+    TRIVY_VERSION: "0.51.0" 
   script:
     - echo "Installing Trivy v$TRIVY_VERSION..."
     - curl -sfL https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VERSION}/trivy_${TRIVY_VERSION}_Linux-64bit.tar.gz -o trivy.tar.gz
