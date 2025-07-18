@@ -7,7 +7,6 @@
 # --------------------------------------------------------------------
 
 .trivy-imagescan:
-  image: ubuntu:22.04
   stage: dockerimagescan
 
   script:
