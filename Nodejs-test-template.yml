@@ -1,14 +1,13 @@
-# create a test template for Node.js applications
-# This template is designed to be reusable across multiple Node.js projects.
-
 .nodejs_test_template:
   stage: test
-  image: node:20.18.1-alpine # Use a Node.js image, matching your Dockerfile's builder base
+  image: node:20.18.1-alpine
   variables:
-    NODE_ENV: "test" # Set the environment to test for running tests
-  before_script:
-    - apk add --update --no-cache python3 make g++ # Install build dependencies  
+    NODE_ENV: "production"
+
   script:
+    - apk add --update python3 make g++
+    - echo "--- Installing dependencies ---"
+    - npm ci
     - echo "--- Running tests ---"
     - |
       TEST_CMD=$(node -p "require('./package.json').scripts?.test || ''")
@@ -16,21 +15,19 @@
         echo "No valid test command found. Skipping tests.";
         exit 0;
       fi
+    - mkdir -p $Nodejs_dir/test-results
     - npm test
-
-# Check if there are tests defined in package.json
-
-    # - npm test # Run the test command defined in package.json
 
   artifacts:
     when: always
     paths:
-      - test-results/ # Directory where test results are stored
-    expire_in: 1 day # Artifacts will expire after 1 day to save storage
+      -  $Nodejs_dir/test-results
+    expire_in: 1 day
 
   cache:
     key: "nodejs-$CI_COMMIT_REF_SLUG"
     paths:
-      - node_modules/ # Cache node_modules to speed up builds
-    policy: pull-push # Pull cache before job, push after job completion
-  allow_failure: true # Allow this job to fail without failing the pipeline
+      - $Nodejs_dir/node_modules/
+    policy: pull-push
+
+  allow_failure: true
