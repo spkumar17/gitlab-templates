@@ -15,11 +15,11 @@
   artifacts:
     when: always
     paths:
-      - $Nodejs_dir/node_modules/ # The directory where npm installs packages
+      - node_modules/ # The directory where npm installs packages
     expire_in: 1 day # Artifacts will expire after 1 day to save storage
 
   cache:
     key: "nodejs-$CI_COMMIT_REF_SLUG"
     paths:
-      - $Nodejs_dir/node_modules/ # Cache node_modules to speed up builds
+      - node_modules/ # Cache node_modules to speed up builds
     policy: pull-push # Pull cache before job, push after job completion
