@@ -1,6 +1,6 @@
 .Test_python_template:
   stage: test
-  image: python:3.11-alpine
+  image: python:3.11
   variables:
     PYTHONUNBUFFERED: 1
   cache:

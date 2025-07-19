@@ -13,7 +13,7 @@
     - |
       if [ -f requirements.txt ]; then
         pip install --upgrade pip
-        pip install --no-cache-dir -r requirements.txt
+        pip install -r requirements.txt
       else
         echo "No requirements.txt found. Skipping dependency installation."
       fi
@@ -21,7 +21,7 @@
   artifacts:
     when: always
     paths:
-      - .venv/  # Save the virtual environment
+      - $venv_Dir/.venv/  # Save the virtual environment
     expire_in: 1 day
 
   cache:
