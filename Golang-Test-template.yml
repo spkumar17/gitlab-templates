@@ -36,7 +36,7 @@
     expire_in: 1 day # How long to keep these artifacts on GitLab
   cache:
     # Reuse the same Go module cache as the build job.
-    key: "go-modules-${CI_COMMIT_REF_SLUG}-${GO_VERSION}""
+    key: "go-modules-${CI_COMMIT_REF_SLUG}-${GO_VERSION}"
     paths:
       - ${GOPATH}/pkg/mod/
     policy: pull # Only pull the cache; 'build_app' job pushes it.
