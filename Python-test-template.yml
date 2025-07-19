@@ -11,7 +11,7 @@
     policy: pull-push
 
   script:
-    - apk add --update --no-cache build-base
+    - apt-get update && apt-get install -y build-essential
     - . .venv/bin/activate
     - mkdir -p test_results
     - |
