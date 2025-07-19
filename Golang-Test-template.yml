@@ -9,15 +9,13 @@
     GOOS: "linux" # Target Linux OS
     GOARCH: "amd64" # Target AMD64 architecture
     GOPATH: "/go" # Set GOPATH to the default Go path
-  before_script:
-    - apk add --update --no-cache make g++ # Install build dependencies
+  
   script:
+    - apk add --update --no-cache make g++ # Install build dependencies
     - echo "--- Initializing Go Modules and tidying dependencies ---"
     - go mod tidy # Important for fetching dependencies
     - go mod download # Download dependencies based on go.mod/go.sum
-
     - echo "--- Testing Go application ---"
-    
     - go install github.com/jstemmer/go-junit-report@latest
 
     # Run all tests in the current module recursively.
@@ -28,11 +26,11 @@
     - GOOS=$GOOS \
       GOARCH=$GOARCH \
       CGO_ENABLED=$CGO_ENABLED \
-      go test -v -json ./... | go-junit-report > test/test-results.xml
+      go test -v -json ./... | go-junit-report > $CI_PROJECT_DIR/test/test-results.xml
   artifacts:
     when: always # Always upload test results, even if tests fail, for debugging.
     paths:
-      - test/ # The generated JUnit XML test report file
+      - $CI_PROJECT_DIR/test/ # The generated JUnit XML test report file
     reports:
       junit: test-results.xml # Configure GitLab to parse this file for test reports in the UI
     expire_in: 1 day # How long to keep these artifacts on GitLab
