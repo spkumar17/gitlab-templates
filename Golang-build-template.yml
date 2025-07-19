@@ -20,10 +20,8 @@
 
     - echo "--- Building Go application ---"
     # This is the command from your Dockerfile's build stage!
-    - GOOS=$GOOS \
-     GOARCH=$GOARCH \
-     CGO_ENABLED=$CGO_ENABLED \
-     go build -o $CI_PROJECT_DIR/$CI_JOB_NAME .    
+    - GOOS=$GOOS GOARCH=$GOARCH CGO_ENABLED=$CGO_ENABLED go build -o $CI_PROJECT_DIR/$CI_JOB_NAME .
+
   artifacts:
     when: always
     name: "$CI_PROJECT_DIR-$CI_JOB_NAME"
