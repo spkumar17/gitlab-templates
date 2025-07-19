@@ -13,7 +13,7 @@
   script:
     - apt-get update && apt-get install -y build-essential
     - . .venv/bin/activate
-    - mkdir -p test_results
+    - mkdir -p $CI_PROJECT_DIR/test_results
     - |
       echo "--- Running tests ---"
       if pytest --collect-only > /dev/null 2>&1; then
