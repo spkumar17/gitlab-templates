@@ -15,19 +15,19 @@
         echo "No valid test command found. Skipping tests.";
         exit 0;
       fi
-    - mkdir -p test-results/
+    - mkdir -p $CI_PROJECT_DIR/test-results/
     - npm test
 
   artifacts:
     when: always
     paths:
-      -  test-results/
+      -  $CI_PROJECT_DIR/test-results/
     expire_in: 1 day
 
   cache:
     key: "nodejs-$CI_COMMIT_REF_SLUG"
     paths:
-      - node_modules/
+      - $CI_PROJECT_DIR/node_modules/
     policy: pull-push
 
   allow_failure: true
