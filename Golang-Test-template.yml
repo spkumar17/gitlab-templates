@@ -1,6 +1,6 @@
 # ... (previous stages and variables) ...
 
-.golang_build_template:
+.golang_test_template:
   stage: Test
   image: golang:1.23.4-alpine # Use a Go SDK image, matching your Dockerfile's builder base
   variables:
