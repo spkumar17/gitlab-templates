@@ -5,7 +5,7 @@
     PYTHONUNBUFFERED: 1
   
   script:
-    - apk add --no-cache build-base
+    - apk add --no-cache build-base linux-headers
     - echo "--- Creating and activating virtual environment ---"
     - python -m venv .venv
     - . .venv/bin/activate
