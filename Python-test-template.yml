@@ -3,10 +3,16 @@
   image: python:3.11-alpine
   variables:
     PYTHONUNBUFFERED: 1
+  cache:
+    key: "pip-$CI_COMMIT_REF_SLUG"
+    paths:
+      - .venv/
+      - ~/.cache/pip
+    policy: pull-push
 
   script:
-    - apk add --update --no-cache build-base  
-    - pip install --no-cache-dir -r requirements.txt
+    - apk add --update --no-cache build-base
+    - . .venv/bin/activate
     - mkdir -p test_results
     - |
       echo "--- Running tests ---"
@@ -21,9 +27,3 @@
     paths:
       - $CI_PROJECT_DIR/test_results/
     expire_in: 1 day
-
-  cache:
-    key: "python-$CI_COMMIT_REF_SLUG"
-    paths:
-      - .venv/
-    policy: pull-push
