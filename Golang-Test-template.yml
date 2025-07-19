@@ -17,12 +17,12 @@
     - go install github.com/jstemmer/go-junit-report@latest
     - echo "--- Running tests ---"
     - mkdir -p $CI_PROJECT_DIR/test
-    - 'go test -v -json ./... | go-junit-report > $CI_PROJECT_DIR/test/test-results.xml'
+    - 'go test -v -json ./... | go-junit-report > $CI_PROJECT_DIR/$SERVICE_NAME-test/test-results.xml'
 
   artifacts:
     when: always
     paths:
-      - $CI_PROJECT_DIR/test/
+      - $CI_PROJECT_DIR/SERVICE_NAME-test/
     reports:
       junit: test/test-results.xml
     expire_in: 1 day
