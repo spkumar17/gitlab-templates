@@ -10,10 +10,9 @@
     GOOS: "linux" # Target Linux OS
     GOARCH: "amd64" # Target AMD64 architecture
     GOPATH: "/go" # Set GOPATH to the default Go path
-  before_script:
-    - apk add --update --no-cache make g++ # Install build dependencies  
 
   script:
+    - apk add --update --no-cache make g++ # Install build dependencies  
     - echo "--- Initializing Go Modules and tidying dependencies ---"
     - go mod tidy # Important for fetching dependencies
     - go mod download # Download dependencies based on go.mod/go.sum
@@ -24,11 +23,12 @@
     - GOOS=$GOOS \
      GOARCH=$GOARCH \
      CGO_ENABLED=$CGO_ENABLED \
-     go build -o ${CI_JOB_NAME} .    
+     go build -o $CI_PROJECT_DIR/$CI_JOB_NAME .    
   artifacts:
     when: always
+    name: "$CI_PROJECT_DIR-$CI_JOB_NAME"
     paths:
-      - ${CI_JOB_NAME} # Save the compiled executable as an artifact
+      - $CI_PROJECT_DIR/$CI_JOB_NAME # Save the compiled executable as an artifact
     expire_in: 1 day
   cache:
     key: "go-$CI_COMMIT_REF_SLUG"
