@@ -6,9 +6,6 @@
   
   script:
     - apk add --no-cache build-base
-    - echo "--- Setting up Python virtual environment ---"
-    - python -m venv .venv
-    - . .venv/bin/activate
     - echo "--- Installing dependencies ---"
     - |
       if [ -f requirements.txt ]; then
@@ -16,11 +13,13 @@
       else
         echo "No requirements.txt found. Skipping dependency installation."
       fi
+    - mkdir -p $CI_PROJECT_DIR/python_packages
+    - cp -r /usr/lib/python3.11/site-packages/* $CI_PROJECT_DIR/python_packages/  
 
   artifacts:
     when: always
     paths:
-      - $CI_PROJECT_DIR/.venv/
+      - $CI_PROJECT_DIR/
     expire_in: 1 day
 
   cache:
