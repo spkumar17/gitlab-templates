@@ -1,43 +1,34 @@
-# ... (previous stages and variables) ...
-
 .golang_test_template:
   stage: Test
-  image: golang:1.23.4-alpine # Use a Go SDK image, matching your Dockerfile's builder base
+  image: golang:1.23.4-alpine
   variables:
-    GO111MODULE: "on" # Enable Go modules
-    CGO_ENABLED: "0" # Disable CGO for static builds
-    GOOS: "linux" # Target Linux OS
-    GOARCH: "amd64" # Target AMD64 architecture
-    GOPATH: "/go" # Set GOPATH to the default Go path
-  
-  script:
-    - apk add --update --no-cache make g++ # Install build dependencies
-    - echo "--- Initializing Go Modules and tidying dependencies ---"
-    - go mod tidy # Important for fetching dependencies
-    - go mod download # Download dependencies based on go.mod/go.sum
-    - echo "--- Testing Go application ---"
-    - go install github.com/jstemmer/go-junit-report@latest
+    GO111MODULE: "on"
+    CGO_ENABLED: "0"
+    GOOS: "linux"
+    GOARCH: "amd64"
+    GOPATH: "/go"
 
-    # Run all tests in the current module recursively.
-    # -v: Verbose output.
-    # -json: Output results in JSON format.
-    # | go-junit-report: Pipes the JSON output to the go-junit-report tool.
-    # > test-results.xml: Redirects the JUnit XML output to a file.
-    - GOOS=$GOOS \
-      GOARCH=$GOARCH \
-      CGO_ENABLED=$CGO_ENABLED \
-      go test -v -json ./... | go-junit-report > $CI_PROJECT_DIR/test/test-results.xml
+  script:
+    - apk add --update --no-cache make g++
+    - echo "--- Initializing Go Modules and tidying dependencies ---"
+    - go mod tidy
+    - go mod download
+    - echo "--- Installing go-junit-report ---"
+    - go install github.com/jstemmer/go-junit-report@latest
+    - echo "--- Running tests ---"
+    - mkdir -p $CI_PROJECT_DIR/test
+    - 'go test -v -json ./... | go-junit-report > $CI_PROJECT_DIR/test/test-results.xml'
+
   artifacts:
-    when: always # Always upload test results, even if tests fail, for debugging.
+    when: always
     paths:
-      - $CI_PROJECT_DIR/test/ # The generated JUnit XML test report file
+      - $CI_PROJECT_DIR/test/
     reports:
-      junit: test-results.xml # Configure GitLab to parse this file for test reports in the UI
-    expire_in: 1 day # How long to keep these artifacts on GitLab
+      junit: test/test-results.xml
+    expire_in: 1 day
+
   cache:
-    # Reuse the same Go module cache as the build job.
-    key: "go-modules-${CI_COMMIT_REF_SLUG}-${GO_VERSION}"
+    key: "go-modules-${CI_COMMIT_REF_SLUG}"
     paths:
       - ${GOPATH}/pkg/mod/
-    policy: pull # Only pull the cache; 'build_app' job pushes it.
-
+    policy: pull
