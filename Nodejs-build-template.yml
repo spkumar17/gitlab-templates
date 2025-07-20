@@ -11,9 +11,7 @@
     - apk add --update python3 make g++
     - echo "--- Installing dependencies ---"
     - npm install --production # Install only production dependencies
-    - |
-      ls -la
-      cd node_modules
+    - cd node_modules
 
   artifacts:
     when: always
