@@ -21,7 +21,7 @@
   artifacts:
     when: always
     paths:
-      -  $node_dir/test-results/ss
+      -  $node_dir/test-results/
     expire_in: 1 day
 
   cache:
