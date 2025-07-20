@@ -12,6 +12,7 @@
     - echo "--- Installing dependencies ---"
     - npm install --production # Install only production dependencies
     - ls -la
+    - cd node_modules
 
   artifacts:
     when: always
