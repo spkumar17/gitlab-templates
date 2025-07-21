@@ -9,7 +9,11 @@
 
   script:
     - dotnet restore
-    - dotnet build --configuration Release -o $CI_PROJECT_DIR/$CI_JOB_NAME
+     - dotnet publish -c Release -r linux-x64 \
+        --self-contained true \
+        -p:PublishSingleFile=true \
+        -p:PublishTrimmed=true \
+        -o $CI_PROJECT_DIR/$CI_JOB_NAME
   artifacts:
     name: "$CI_PROJECT_DIR-$CI_JOB_NAME"
     paths:
