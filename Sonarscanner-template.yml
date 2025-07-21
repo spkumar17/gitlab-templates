@@ -20,6 +20,5 @@
     paths:
       - .sonar/cache
   script: 
-    - curl ${SONAR_HOST_URL}/api/system/health
     - sonar-scanner -Dsonar.login=$SONAR_TOKEN -X -Dsonar.host.url=${SONAR_HOST_URL} -Dsonar.qualitygate.wait=true
   allow_failure: false  # Fail the job if SonarQube analysis fails
