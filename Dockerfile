@@ -1,3 +1,8 @@
+#Yes, the requirement that all files or artifacts you want to include in your Docker image 
+#must be inside the Docker build context applies equally to all project types and languages. 
+#This rule is an architectural part of how Docker builds work and isn't specific to Java, .NET,
+#Node.js, Python, Go, or any other stack.
+
 
 # adservice Microservice 
 # Use a secure and minimal Java 21 runtime image
