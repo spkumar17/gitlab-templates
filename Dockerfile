@@ -1,25 +1,23 @@
 
 # adservice Microservice 
+# Use a secure and minimal Java 21 runtime image
 
-# Use secure, minimal Java 21 runtime image
 FROM eclipse-temurin:21.0.5_11-jre-alpine@sha256:4300bfe1e11f3dfc3e3512f39939f9093cf18d0e581d1ab1ccd0512f32fe33f0
 
 LABEL service="adservice" \
       maintainer="prasannakumarsinganamalla@gmail.com" \
       description="AdService microservice container"
 
-# Set working directory
 WORKDIR /home/adservice
 USER nonroot
 
-# Copy the JAR built in GitLab CI
-COPY src/adservice/build/libs/hipstershop-0.1.0-SNAPSHOT.jar .
+# Copy the JAR from the local build output to the image
+COPY build/libs/hipstershop-0.1.0-SNAPSHOT.jar .
 
-# Expose the application's port
 EXPOSE 9555
 
-# Start the application
 ENTRYPOINT ["java", "-jar", "hipstershop-0.1.0-SNAPSHOT.jar"]
+
 
 #------------------------------------------------------------------------------------------------------------
 # Cartservice
