@@ -9,12 +9,12 @@
 
   script:
     - dotnet restore
-    - dotnet publish src/cartservice.csproj -c Release -r linux-x64 --self-contained true -p:PublishSingleFile=true -p:PublishTrimmed=true -o $CI_PROJECT_DIR/$CI_JOB_NAME
+    - dotnet publish src/cartservice.csproj -c Release -r linux-x64 --self-contained true -p:PublishSingleFile=true -p:PublishTrimmed=true -o $dotnet_Dir/$CI_JOB_NAME
 
   artifacts:
-    name: "$CI_PROJECT_DIR-$CI_JOB_NAME"
+    name: "$dotnet_Dir-$CI_JOB_NAME"
     paths:
-      - $CI_PROJECT_DIR/$CI_JOB_NAME
+      - $dotnet_Dir/$CI_JOB_NAME
     when: always  
     expire_in: 1 hour
   cache:
