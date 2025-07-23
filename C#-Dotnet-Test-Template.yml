@@ -9,12 +9,12 @@
   script:
     - mkdir -p test_results
     - dotnet restore
-    - dotnet test --configuration Release --logger:"trx;LogFileName=$CI_PROJECT_DIR/test_results/${CI_PIPELINE_ID}-test_results.trx"
+    - dotnet test --configuration Release --logger:"trx;LogFileName=$dotnet_Dir/test_results/${CI_PIPELINE_ID}-test_results.trx"
 
   artifacts:
-    name: "$CI_PROJECT_DIR-$CI_JOB_NAME-test"
+    name: "$dotnet_Dir-$CI_JOB_NAME-test"
     paths:
-      - $CI_PROJECT_DIR/test_results/
+      - $dotnet_Dir/test_results/
     when: always  
     expire_in: 1 hour
 
