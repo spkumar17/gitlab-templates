@@ -16,11 +16,14 @@
     - chmod +x gradlew
     - echo "run gradle build"
     - ./gradlew build -x verifyGoogleJavaFormat # This will exclude the task
+    - ./gradlew installDist
 
   artifacts:
     paths:
       - $GRADLE_Dir/build/libs/                # JAR output
       - $GRADLE_Dir/build/classes/java/main/   # CLASS files needed by Sonar
+      - $GRADLE_Dir/build/install/             # Include the installDist output (bin/, lib/)
+
     expire_in: 1 hour
     when: always
   cache:
