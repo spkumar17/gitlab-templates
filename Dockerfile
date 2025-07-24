@@ -38,7 +38,7 @@ ENV ASPNETCORE_HTTP_PORTS=7070
 COPY cartservice_build .
 
 # Run the app using the binary name
-ENTRYPOINT ["/app/cartservice"]
+ENTRYPOINT ["/cartservice"]
 
 
 
