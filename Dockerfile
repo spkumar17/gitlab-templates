@@ -5,23 +5,24 @@
 
 
 # adservice Microservice 
-# Use a secure and minimal Java 21 runtime image
 
 FROM eclipse-temurin:21.0.5_11-jre-alpine@sha256:4300bfe1e11f3dfc3e3512f39939f9093cf18d0e581d1ab1ccd0512f32fe33f0
 
 LABEL service="adservice" \
       maintainer="prasannakumarsinganamalla@gmail.com" \
       description="AdService microservice container"
+RUN adservice -D adservice
+USER adservice
 
 WORKDIR /home/adservice
-USER nonroot
 
-# Copy the JAR from the local build output to the image
-COPY build/libs/hipstershop-0.1.0-SNAPSHOT.jar .
+COPY build/install/hipstershop/ ./
+
+RUN chmod +x bin/AdService
 
 EXPOSE 9555
 
-ENTRYPOINT ["java", "-jar", "hipstershop-0.1.0-SNAPSHOT.jar"]
+ENTRYPOINT ["./bin/AdService"]
 
 
 #------------------------------------------------------------------------------------------------------------
@@ -35,16 +36,13 @@ EXPOSE 7070
 ENV ASPNETCORE_HTTP_PORTS=7070
 
 # Copy the output from build stage (assuming this includes the published binary)
-COPY cartservice_build .
+COPY cartservice_build cartservice
 
 # Run the app using the binary name
-ENTRYPOINT ["/cartservice"]
+ENTRYPOINT ["./cartservice"]
 
 
-
-
-    
-#------------------------------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------------------
 # Docker file checkoutservice 
 # Dockerfile
 
@@ -53,7 +51,7 @@ FROM golang:1.23.4-alpine
 # Set the working directory inside the container.
 WORKDIR /app
 
-COPY checkoutservice_build /app/checkoutservice
+COPY checkoutservice_build checkoutservice
 
 ENV GOTRACEBACK=single
 
@@ -61,7 +59,7 @@ ENV GOTRACEBACK=single
 EXPOSE 5050
 
 # Define the command to run when the container starts.
-ENTRYPOINT ["/app/checkoutservice"]
+ENTRYPOINT ["./checkoutservice"]
 
 #-----------------------------------------------------------------------------------------------------------
 # frontend service
@@ -76,7 +74,7 @@ FROM golang:1.23.4-alpine
 
 WORKDIR /app
 
-COPY frontend_build  /app/server
+COPY frontend_build  frontend
 
 COPY ./templates ./templates
 COPY ./static ./static
@@ -88,7 +86,7 @@ ENV GOTRACEBACK=single
 EXPOSE 8080
 
 # Define the command to run when the container starts.
-ENTRYPOINT ["/app/server"]
+ENTRYPOINT ["./frontend"]
 
 #-----------------------------------------------------------------------------------------------------------
 # shippingservice
@@ -106,7 +104,7 @@ WORKDIR /app
 
 # Copy the compiled executable from the builder stage into the final image.
 # The executable is named 'shippingservice' and will be placed at /app/shippingservice in the final image.
-COPY shippingservice_build  /app/shippingservice
+COPY shippingservice_build  shippingservice
 
 # Set an environment variable for the application's port.
 ENV APP_PORT=50051
@@ -118,7 +116,7 @@ ENV GOTRACEBACK=single
 EXPOSE 50051
 
 # Define the command to run when the container starts.
-ENTRYPOINT ["/app/shippingservice"]
+ENTRYPOINT ["./shippingservice"]
 
 #-----------------------------------------------------------------------------------------------------------
 # productcatalogservice
@@ -132,7 +130,7 @@ FROM golang:1.23.4-alpine
 
 WORKDIR /app
 
-COPY productcatalogservice_build  /app/server
+COPY productcatalogservice_build  productcatalogservice
 
 COPY products.json ./products.json
 
@@ -143,7 +141,7 @@ ENV GOTRACEBACK=single
 EXPOSE 3550
 
 # Define the command to run when the container starts.
-ENTRYPOINT ["/app/server"]
+ENTRYPOINT ["./productcatalogservice"]
 
 #-----------------------------------------------------------------------------------------------------------
 # currencyservice
@@ -152,7 +150,7 @@ FROM node:20.18.1-alpine
 WORKDIR /app
 
 # Copy pre-installed node_modules from artifact
-COPY src/currencyservice/node_modules ./node_modules
+COPY ./node_modules ./node_modules
 
 # Copy the rest of your app code
 COPY . .
@@ -169,7 +167,7 @@ FROM node:20.18.1-alpine
 WORKDIR /app
 
 # Copy pre-installed node_modules from artifact
-COPY src/paymentservice/node_modules ./node_modules
+COPY ./node_modules ./node_modules
 
 # Copy the rest of your app code
 COPY . .
@@ -181,17 +179,19 @@ ENTRYPOINT ["node", "index.js"]
 # emailservice
 FROM python:3.11-alpine
 
-LABEL service="emailservice"
-
 WORKDIR /app
 
-COPY src/emailservice/.venv /app/.venv
+# Copy the dependency list
+COPY requirements.txt .
+
+# Install packages freshly in the container
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy the rest of your application
 COPY . .
 
-ENV VIRTUAL_ENV=/app/.venv
-ENV PATH="$VIRTUAL_ENV/bin:$PATH"
-
 EXPOSE 8080
+
 ENTRYPOINT ["python", "email_server.py"]
 
 #-----------------------------------------------------------------------------------------------------------
@@ -203,40 +203,47 @@ LABEL service="recommendationservice"
 
 WORKDIR /app
 
-COPY src/recommendationservice/.venv /app/.venv
-COPY . .
+# Install build dependencies (if needed for compiled packages)
+RUN apk add --no-cache build-base linux-headers
 
-ENV VIRTUAL_ENV=/app/.venv
-ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+# Copy dependency list first (for Docker cache efficiency)
+COPY src/recommendationservice/requirements.txt .
+
+# Install dependencies inside the image
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Now copy the application source code
+COPY src/recommendationservice/ .
 
 EXPOSE 8080
+
 ENTRYPOINT ["python", "recommendation_server.py"]
 
-
+# -------------------------------------------------------------------------
 # shoppingassistantservice - Lightweight Python container using prebuilt .venv
 
-FROM python:3.12.8-slim@sha256:123be5684f39d8476e64f47a5fddf38f5e9d839baff5c023c815ae5bdfae0df7
+FROM python:3.11-alpine
 
 LABEL service="shoppingassistantservice"
 
 WORKDIR /app
 
-# Copy virtual environment built in CI
-COPY src/shoppingassistantservice/.venv /app/.venv
+RUN apk add --no-cache build-base linux-headers
+
+COPY src/shoppingassistantservice/requirements.txt .
+
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
 COPY . .
-
-# Activate the virtualenv by updating PATH
-ENV VIRTUAL_ENV=/app/.venv
-ENV PATH="$VIRTUAL_ENV/bin:$PATH"
-
 # Set port and expose
 ENV PORT=8080
 EXPOSE 8080
 
 # Start the application
 ENTRYPOINT ["python", "shoppingassistantservice.py"]
+
+
 
 
 
