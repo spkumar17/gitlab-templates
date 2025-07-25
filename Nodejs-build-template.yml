@@ -10,8 +10,7 @@
   script:
     - apk add --update python3 make g++
     - echo "--- Installing dependencies ---"
-    # - npm install --production # Install only production dependencies
-    - npm ci --only=production
+    - npm install --only=production
     - ls -la $node_dir/node_modules/
 
 
